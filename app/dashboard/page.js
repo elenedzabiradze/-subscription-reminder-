@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useSession, signIn } from "next-auth/react";
+import BrandIcon from "../components/BrandIcon";
 
 export default function Dashboard() {
   const { data: session, status } = useSession();
@@ -72,12 +73,15 @@ export default function Dashboard() {
       <h1>Your subscriptions</h1>
 
       <form onSubmit={handleSubmit} className="form">
-        <input
-          placeholder="Name (e.g. Netflix)"
-          value={form.name}
-          onChange={(e) => setForm({ ...form, name: e.target.value })}
-          required
-        />
+        <div className="name-row">
+          <BrandIcon name={form.name} size={28} />
+          <input
+            placeholder="Name (e.g. Netflix)"
+            value={form.name}
+            onChange={(e) => setForm({ ...form, name: e.target.value })}
+            required
+          />
+        </div>
         <input
           placeholder="Price"
           type="number"
@@ -118,7 +122,17 @@ export default function Dashboard() {
         <ul className="list">
           {subs.map((s) => (
             <li key={s.id}>
-              <span>{s.summary}</span>
+              <span className="sub-info">
+                <BrandIcon name={s.name} size={36} />
+                <span className="sub-text">
+                  <strong>{s.name}</strong>
+                  <br />
+                  <small>
+                    {s.currency} {s.price}
+                    {s.day ? ` · billed on the ${s.day}${ordinalSuffix(s.day)}` : ""}
+                  </small>
+                </span>
+              </span>
               <button className="btn secondary" onClick={() => handleDelete(s.id)}>
                 Remove
               </button>
@@ -128,4 +142,15 @@ export default function Dashboard() {
       )}
     </main>
   );
+}
+
+function ordinalSuffix(day) {
+  const n = Number(day);
+  if (n >= 11 && n <= 13) return "th";
+  switch (n % 10) {
+    case 1: return "st";
+    case 2: return "nd";
+    case 3: return "rd";
+    default: return "th";
+  }
 }
